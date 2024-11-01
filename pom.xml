@@ -31,6 +31,14 @@
             <scope>system</scope>
             <systemPath>${pom.basedir}/jMetal/jmetal-problem/target/jmetal-problem-6.2.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>1.5.2</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/jgrapht/jgrapht-core/target/jgrapht-core-1.5.3-SNAPSHOT.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>

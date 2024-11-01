@@ -1,3 +1,6 @@
 [submodule "jMetal"]
 	path = jMetal
 	url = git@github.com:jMetal/jMetal.git
+[submodule "jgrapht"]
+	path = jgrapht
+	url = https://github.com/jgrapht/jgrapht
