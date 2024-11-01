@@ -1,16 +1,20 @@
 package com.aegroupw;
 
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleWeightedGraph;
+import org.jgrapht.Graph;
 
 public class Main {
     public static void main(String[] args) {
-        SimpleWeightedGraph<Integer, DefaultEdge> network = new SimpleWeightedGraph<>(DefaultEdge.class);
+        String filename = "graphs/example.txt"; // specify the path to your graph file
+        Graph<String, NetworkEdge> graph = GraphParser.parseGraphFromFile(filename);
 
-        network.addVertex(0);
-        network.addVertex(1);
-        network.addEdge(0, 1);
+        // Print out the graph to verify it was constructed correctly
+        System.out.println("Vertices: " + graph.vertexSet());
+        System.out.println("Edges: " + graph.edgeSet());
 
-        System.out.println(network.toString());
+        for (NetworkEdge edge : graph.edgeSet()) {
+            String source = graph.getEdgeSource(edge);
+            String target = graph.getEdgeTarget(edge);
+            System.out.println("Edge: " + source + " -- " + target + " " + edge);
+        }
     }
 }
