@@ -44,6 +44,7 @@ public class GraphParser {
 
         try (BufferedReader edgesFile = new BufferedReader(new FileReader(edgesFilename))) {
             String line;
+            int i = 0;
             while ((line = edgesFile.readLine()) != null) {
                 String[] parts = line.trim().split("\\s+");
                 if (parts.length == 4) {
@@ -61,8 +62,10 @@ public class GraphParser {
                     graph.addVertex(v2);
 
                     // Add edge with weight
-                    NetworkEdge edge = new NetworkEdge(cost, probability);
+                    NetworkEdge edge = new NetworkEdge(i, cost, probability);
                     graph.addEdge(v1, v2, edge);
+
+                    i++;
                 }
             }
         } catch (IOException e) {
