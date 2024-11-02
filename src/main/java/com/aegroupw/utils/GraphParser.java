@@ -1,10 +1,14 @@
-package com.aegroupw;
+package com.aegroupw.utils;
 
 import org.jgrapht.Graph;
 import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
 import org.jgrapht.nio.dot.DOTExporter;
+
+import com.aegroupw.network.NetworkEdge;
+import com.aegroupw.network.NetworkNode;
+import com.aegroupw.network.NetworkNodeType;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

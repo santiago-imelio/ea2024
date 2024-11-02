@@ -1,4 +1,4 @@
-package com.aegroupw;
+package com.aegroupw.network;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
