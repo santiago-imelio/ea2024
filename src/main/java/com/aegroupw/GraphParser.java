@@ -2,12 +2,19 @@ package com.aegroupw;
 
 import org.jgrapht.Graph;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTExporter;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GraphParser {
     public static Graph<NetworkNode, NetworkEdge> parseGraphFromFile(String edgesFilename, String vertexFilename) {
@@ -61,5 +68,42 @@ public class GraphParser {
         }
 
         return graph;
+    }
+
+    public static String networkToDOT(Graph<NetworkNode, NetworkEdge> net) {
+        DOTExporter<NetworkNode, NetworkEdge> exporter =
+            new DOTExporter<>(v ->Integer.toString(v.getNumber()));
+
+        exporter.setVertexAttributeProvider((v) -> {
+            Map<String, Attribute> map = new LinkedHashMap<>();
+
+            if (v.getType() != NetworkNodeType.COMPONENT) {
+                String label = v.getType().toString() + ' ' + Integer.toString(v.getNumber());
+                map.put("label", DefaultAttribute.createAttribute(label));
+            }
+
+            return map;
+        });
+
+        exporter.setEdgeAttributeProvider((e) -> {
+            Map<String, Attribute> map = new LinkedHashMap<>();
+
+            String label =
+                "{"
+                + Double.toString(e.getCost())
+                + " "
+                + "//"
+                + " "
+                + Double.toString(e.getProbability())
+                + "}";
+
+            map.put("label", DefaultAttribute.createAttribute(label));
+            return map;
+        });
+
+        Writer writer = new StringWriter();
+        exporter.exportGraph(net, writer);
+
+        return writer.toString();
     }
 }
