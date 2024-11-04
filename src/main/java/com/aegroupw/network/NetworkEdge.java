@@ -25,6 +25,14 @@ public class NetworkEdge extends DefaultWeightedEdge {
         return number;
     }
 
+    public NetworkNode getSource() {
+        return (NetworkNode)super.getSource();
+    }
+
+    public NetworkNode getTarget() {
+        return (NetworkNode)super.getTarget();
+     }
+
     @Override
     public String toString() {
         return "{" +

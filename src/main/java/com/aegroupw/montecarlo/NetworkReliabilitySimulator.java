@@ -1,12 +1,9 @@
 package com.aegroupw.montecarlo;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 
 import org.jgrapht.Graph;
+import org.jgrapht.alg.shortestpath.BFSShortestPath;
 import org.jgrapht.graph.SimpleGraph;
 
 import com.aegroupw.network.NetworkEdge;
@@ -14,6 +11,7 @@ import com.aegroupw.network.NetworkNode;
 import com.aegroupw.network.NetworkNodeType;
 
 import java.util.Random;
+import java.util.Set;
 
 public class NetworkReliabilitySimulator {
   /**
@@ -21,79 +19,108 @@ public class NetworkReliabilitySimulator {
    * @param edgesFile graph edges file path
    * @param vertexFile graph vertex file path
    */
-  public static void estimateReliability(String edgesFile, String vertexFile, int replications) {
+  public static double estimateReliability(Graph<NetworkNode, NetworkEdge> network, int replications) {
+    long startTime = System.nanoTime();
+
+    System.out.println(
+      "Starting Monte Carlo simulation " + "(" + replications + " replications)"
+    );
+
+    Random rnd = new Random();
+
+    int validConfigs = 0;
 
     for (int i = 0; i < replications; i++) {
-      Graph<NetworkNode, NetworkEdge> g = buildRandomGraph(edgesFile, vertexFile);
+      Graph<NetworkNode, NetworkEdge> gConfig = configureRandomNetwork(network, rnd);
+      NetworkNode server = findServerNode(gConfig);
+      Set<NetworkNode> clients = findClientNodes(gConfig);
 
-      // TODO: get clients and server first to check connectivity on graph g
+      int connectedClients = 0;
+
+      for (NetworkNode c : clients) {
+        if (BFSShortestPath.findPathBetween(gConfig, server, c) == null) {
+          break;
+        }
+
+        connectedClients++;
+      }
+
+      if (connectedClients == clients.size()) {
+        validConfigs++;
+      }
     }
+
+
+    // log execution time
+    long endTime = System.nanoTime();
+    long duration = (endTime - startTime) / 1000000;
+
+    System.out.println("Execution time for simulation: " + duration + " ms");
+
+    Double reliability = (double)validConfigs / replications;
+
+    System.out.println("Estimated reliability: " + reliability);
+    return reliability;
+  }
+
+  static NetworkNode findServerNode(Graph<NetworkNode, NetworkEdge> g) {
+    NetworkNode s = null;
+    Set<NetworkNode> vertexSet = g.vertexSet();
+
+    for (NetworkNode n : vertexSet) {
+      if (n.getType() == NetworkNodeType.SERVER) {
+        s = n;
+        break;
+      }
+    }
+
+    return s;
+  }
+
+  static Set<NetworkNode> findClientNodes(Graph<NetworkNode, NetworkEdge> g) {
+    Set<NetworkNode> clients = new HashSet<>();
+    Set<NetworkNode> vertexSet = g.vertexSet();
+
+    for (NetworkNode n : vertexSet) {
+      if (n.getType() == NetworkNodeType.CLIENT) {
+        clients.add(n);
+      }
+    }
+
+    return clients;
   }
 
   /**
-   * Builds a graph with randomly selected edges, based on their probability.
-   * @param edgesFileName
-   * @param vertexFileName
-   * @return
+   * Creates a deep copy of the given network. Selects edges based on their probability.
+   * @param g network
+   * @param rnd random number generator
+   * @return deep copy of a graph that might not have all the edges of the original graph.
    */
-  private static Graph<NetworkNode, NetworkEdge> buildRandomGraph(String edgesFileName, String vertexFileName) {
-        Graph<NetworkNode, NetworkEdge> graph = new SimpleGraph<>(NetworkEdge.class);
-        Random rand = new Random();
+  private static Graph<NetworkNode, NetworkEdge> configureRandomNetwork(Graph<NetworkNode, NetworkEdge> g, Random rnd) {
+    Set<NetworkEdge> edgeSet = g.edgeSet();
 
-        List<NetworkNode> vertices = new ArrayList<NetworkNode>();
-        try (BufferedReader vertexFile = new BufferedReader(new FileReader(vertexFileName))) {
-            String line;
-            while ((line = vertexFile.readLine()) != null) {
-                String[] parts = line.trim().split("\\s+");
-                Integer vertex = Integer.parseInt(parts[0]);
-                NetworkNodeType type = NetworkNodeType.valueOf(parts[1]);
-                NetworkNode node = new NetworkNode(vertex, type);
+    Graph<NetworkNode,NetworkEdge> gCopy = new SimpleGraph<NetworkNode,NetworkEdge>(NetworkEdge.class);
 
-                // put node at index equal to vertex number
-                vertices.add(vertex, node);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid weight format: " + e.getMessage());
-        }
+    for (NetworkEdge e : edgeSet) {
+      NetworkNode v1 = e.getSource();
+      NetworkNode v2 = e.getTarget();
 
-        try (BufferedReader edgesFile = new BufferedReader(new FileReader(edgesFileName))) {
-            String line;
-            int i = 0;
-            while ((line = edgesFile.readLine()) != null) {
-                String[] parts = line.trim().split("\\s+");
-                if (parts.length == 4) {
-                    Integer vertex1 = Integer.parseInt(parts[0]);
-                    Integer vertex2 = Integer.parseInt(parts[1]);
+      NetworkNode v1Copy = new NetworkNode(v1.getNumber(), v1.getType());
+      NetworkNode v2Copy = new NetworkNode(v2.getNumber(), v2.getType());
 
-                    NetworkNode v1 = vertices.get(vertex1);
-                    NetworkNode v2 = vertices.get(vertex2);
+      gCopy.addVertex(v1Copy);
+      gCopy.addVertex(v2Copy);
 
-                    graph.addVertex(v1);
-                    graph.addVertex(v2);
+      if (isEdgeOperational(e, rnd)) {
+        NetworkEdge eCopy = new NetworkEdge(e.getNumber(), e.getCost(), e.getProbability());
+        gCopy.addEdge(v1Copy, v2Copy, eCopy);
+      }
+    }
 
-                    double reliability = Double.parseDouble(parts[3]);
-
-                    if (isEdgeOperational(reliability, rand)) {
-                      double cost = Double.parseDouble(parts[2]);
-                      NetworkEdge edge = new NetworkEdge(i, cost, reliability);
-                      graph.addEdge(v1, v2, edge);
-                    }
-
-                    i++;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid weight format: " + e.getMessage());
-        }
-
-        return graph;
+    return gCopy;
   }
 
-  private static boolean isEdgeOperational(double edgeReliability, Random rnd) {
-    return rnd.nextDouble(1.0) < edgeReliability;
+  private static boolean isEdgeOperational(NetworkEdge e, Random rnd) {
+    return rnd.nextDouble(1.0) < e.getProbability();
   }
 }

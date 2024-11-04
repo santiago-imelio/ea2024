@@ -9,10 +9,10 @@ import com.aegroupw.utils.GraphParser;
 
 public class Main {
     public static void main(String[] args) {
-        String vertexFile = "graphs/example_vertices.txt";
-        String edgesFile = "graphs/example_edges.txt";
-        NetworkReliabilitySimulator.estimateReliability(edgesFile, vertexFile, 42);
-        // Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edgesFile, vertexFile);
-        // System.out.println(GraphParser.networkToDOT(graph));
+        String vertexFile = "graphs/example2_vertices.txt";
+        String edgesFile = "graphs/example2_edges.txt";
+        Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edgesFile, vertexFile);
+
+        NetworkReliabilitySimulator.estimateReliability(graph, 100000);
     }
 }
