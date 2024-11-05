@@ -1,6 +1,8 @@
 package com.aegroupw.montecarlo;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.jgrapht.Graph;
 import org.jgrapht.alg.shortestpath.BFSShortestPath;
@@ -19,7 +21,7 @@ public class NetworkReliabilitySimulator {
    * @param edgesFile graph edges file path
    * @param vertexFile graph vertex file path
    */
-  public static double estimateReliability(Graph<NetworkNode, NetworkEdge> network, int replications) {
+  public static Map<String, Double> estimateReliability(Graph<NetworkNode, NetworkEdge> network, int replications) {
     long startTime = System.nanoTime();
 
     System.out.println(
@@ -28,7 +30,8 @@ public class NetworkReliabilitySimulator {
 
     Random rnd = new Random();
 
-    int validConfigs = 0;
+    int sum = 0;
+    double variance = 0;
 
     for (int i = 0; i < replications; i++) {
       Graph<NetworkNode, NetworkEdge> gConfig = configureRandomNetwork(network, rnd);
@@ -45,11 +48,14 @@ public class NetworkReliabilitySimulator {
         connectedClients++;
       }
 
+      int x = 0;
       if (connectedClients == clients.size()) {
-        validConfigs++;
+        x = 1;
       }
-    }
 
+      sum += x;
+      variance += x * x;
+    }
 
     // log execution time
     long endTime = System.nanoTime();
@@ -57,10 +63,18 @@ public class NetworkReliabilitySimulator {
 
     System.out.println("Execution time for simulation: " + duration + " ms");
 
-    Double reliability = (double)validConfigs / replications;
+    Double q = (double)sum / replications;
+    variance = (variance / replications - q * q)/(replications - 1);
+    Double std = Math.sqrt(variance);
 
-    System.out.println("Estimated reliability: " + reliability);
-    return reliability;
+    Map<String, Double> results = new HashMap<String,Double>();
+
+    results.put("rlb", q);
+    results.put("variance", variance);
+    results.put("std", std);
+    results.put("rel_error", std / q);
+
+    return results;
   }
 
   static NetworkNode findServerNode(Graph<NetworkNode, NetworkEdge> g) {
