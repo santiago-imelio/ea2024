@@ -2,7 +2,7 @@ package com.aegroupw.network;
 
 import java.util.Objects;
 
-public class NetworkNode {
+public class NetworkNode extends Object {
     private final int number;
     private final NetworkNodeType type;
 
