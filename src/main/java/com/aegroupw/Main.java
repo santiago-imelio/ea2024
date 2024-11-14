@@ -11,10 +11,13 @@ import com.aegroupw.utils.GraphParser;
 
 public class Main {
     public static void main(String[] args) {
-        String vertexFile = "graphs/example2_vertices.txt";
-        String edgesFile = "graphs/example2_edges.txt";
+        String vertexFile = "graphs/fully_connected/nodes.txt";
+        String edgesFile = "graphs/fully_connected/edges.txt";
+
         Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edgesFile, vertexFile);
-        Map<String, Double> res = NetworkReliabilitySimulator.estimateReliability(graph, 10000);
+
+        // System.out.println(GraphParser.networkToDOT(graph));
+        Map<String, Double> res = NetworkReliabilitySimulator.estimateReliability(graph, 100000);
         System.out.println(res);
     }
 }
