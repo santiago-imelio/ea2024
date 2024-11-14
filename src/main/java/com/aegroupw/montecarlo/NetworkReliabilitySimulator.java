@@ -51,8 +51,6 @@ public class NetworkReliabilitySimulator {
 
     System.out.println("Execution time for simulation: " + duration + " ms");
 
-    System.out.println(sum);
-
     Double q = (double)sum / replications;
     variance = (variance / replications - q * q)/(replications - 1);
     Double std = Math.sqrt(variance);
