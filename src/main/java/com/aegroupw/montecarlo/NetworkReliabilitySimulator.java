@@ -35,21 +35,9 @@ public class NetworkReliabilitySimulator {
 
     for (int i = 0; i < replications; i++) {
       Graph<NetworkNode, NetworkEdge> gConfig = configureRandomNetwork(network, rnd);
-      NetworkNode server = findServerNode(gConfig);
-      Set<NetworkNode> clients = findClientNodes(gConfig);
-
-      int connectedClients = 0;
-
-      for (NetworkNode c : clients) {
-        if (BFSShortestPath.findPathBetween(gConfig, server, c) == null) {
-          break;
-        }
-
-        connectedClients++;
-      }
 
       int x = 0;
-      if (connectedClients == clients.size()) {
+      if (isNetworkConnected(gConfig)) {
         x = 1;
       }
 
@@ -77,18 +65,17 @@ public class NetworkReliabilitySimulator {
     return results;
   }
 
-  static NetworkNode findServerNode(Graph<NetworkNode, NetworkEdge> g) {
-    NetworkNode s = null;
+  static Set<NetworkNode> findServerNodes(Graph<NetworkNode, NetworkEdge> g) {
+    Set<NetworkNode> servers = new HashSet<>();
     Set<NetworkNode> vertexSet = g.vertexSet();
 
     for (NetworkNode n : vertexSet) {
       if (n.getType() == NetworkNodeType.SERVER) {
-        s = n;
-        break;
+        servers.add(n);
       }
     }
 
-    return s;
+    return servers;
   }
 
   static Set<NetworkNode> findClientNodes(Graph<NetworkNode, NetworkEdge> g) {
@@ -110,7 +97,7 @@ public class NetworkReliabilitySimulator {
    * @param rnd random number generator
    * @return deep copy of a graph that might not have all the edges of the original graph.
    */
-  private static Graph<NetworkNode, NetworkEdge> configureRandomNetwork(Graph<NetworkNode, NetworkEdge> g, Random rnd) {
+  static Graph<NetworkNode, NetworkEdge> configureRandomNetwork(Graph<NetworkNode, NetworkEdge> g, Random rnd) {
     Set<NetworkEdge> edgeSet = g.edgeSet();
 
     Graph<NetworkNode,NetworkEdge> gCopy = new SimpleGraph<NetworkNode,NetworkEdge>(NetworkEdge.class);
@@ -134,7 +121,33 @@ public class NetworkReliabilitySimulator {
     return gCopy;
   }
 
-  private static boolean isEdgeOperational(NetworkEdge e, Random rnd) {
+  /**
+   * Returns true if each client is connected to at least one server using BFS.
+   * @param g
+   * @return
+   */
+  static boolean isNetworkConnected(Graph<NetworkNode, NetworkEdge> g) {
+    Set<NetworkNode> servers = findServerNodes(g);
+    Set<NetworkNode> clients = findClientNodes(g);
+
+    int connectedClients = 0;
+
+    // store client to server assignments
+    Map<NetworkNode, NetworkNode> clientServerMap = new HashMap<>();
+
+    for (NetworkNode s : servers) {
+      for (NetworkNode c : clients) {
+        if (clientServerMap.get(c) == null && BFSShortestPath.findPathBetween(g, s, c) != null) {
+          clientServerMap.put(c, s);
+          connectedClients++;
+        }
+      }
+    }
+
+    return connectedClients == clients.size();
+  }
+
+  static boolean isEdgeOperational(NetworkEdge e, Random rnd) {
     return rnd.nextDouble(1.0) < e.getProbability();
   }
 }
