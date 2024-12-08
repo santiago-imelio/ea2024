@@ -1,10 +1,9 @@
 package com.aegroupw;
 
-import java.util.Map;
-
 import org.jgrapht.Graph;
+import org.uma.jmetal.solution.binarysolution.BinarySolution;
 
-import com.aegroupw.montecarlo.NetworkReliabilitySimulator;
+import com.aegroupw.evolutionary.NetworkOptimizationProblem;
 import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
 import com.aegroupw.utils.GraphParser;
@@ -16,8 +15,12 @@ public class Main {
 
         Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edgesFile, vertexFile);
 
-        // System.out.println(GraphParser.networkToDOT(graph));
-        Map<String, Double> res = NetworkReliabilitySimulator.estimateReliability(graph, 100000);
-        System.out.println(res);
+        NetworkOptimizationProblem problem = new NetworkOptimizationProblem(graph);
+
+        BinarySolution solution = problem.createSolution();
+
+        BinarySolution evaluatedSolution = problem.evaluate(solution);
+
+        System.out.println(evaluatedSolution);
     }
 }
