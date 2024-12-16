@@ -16,10 +16,25 @@ import com.aegroupw.network.NetworkNode;
 import com.aegroupw.montecarlo.NetworkReliabilitySimulator;
 
 public class NetworkOptimizationProblem extends AbstractBinaryProblem {
+  /** The network we want to optimize */
   private Graph<NetworkNode, NetworkEdge> network;
 
-  public NetworkOptimizationProblem(Graph<NetworkNode, NetworkEdge> network) {
+  /** Problem Parameters */
+
+  /** Probability of an edge being in a solution */
+  private double edgeProbability;
+
+  /** Number of replications of Monte Carlo simulation to estimate network reliability */
+  private int monteCarloReplications;
+
+  public NetworkOptimizationProblem(
+    Graph<NetworkNode, NetworkEdge> network,
+    double edgeProbability,
+    int monteCarloReplications
+  ) {
     this.network = network;
+    this.edgeProbability = edgeProbability;
+    this.monteCarloReplications = monteCarloReplications;
   }
 
   @Override
@@ -55,7 +70,7 @@ public class NetworkOptimizationProblem extends AbstractBinaryProblem {
 
   @Override
   public BinarySolution createSolution() {
-    return new BinarizedNetworkSolution(numberOfBitsPerVariable(), numberOfObjectives());
+    return new BinarizedNetworkSolution(numberOfBitsPerVariable(), numberOfObjectives(), this.edgeProbability);
   }
 
   @Override
@@ -75,8 +90,11 @@ public class NetworkOptimizationProblem extends AbstractBinaryProblem {
       totalCost += e.getCost();
     }
 
-    // TODO: replications should be a problem paramater
-    Map<String, Double> mcResults = NetworkReliabilitySimulator.estimateReliability(subNetwork, 100000);
+    Map<String, Double> mcResults = NetworkReliabilitySimulator.estimateReliability(
+      subNetwork,
+      this.monteCarloReplications
+    );
+
     Double reliability = mcResults.get("rlb");
 
     solution.objectives()[0] = totalCost;

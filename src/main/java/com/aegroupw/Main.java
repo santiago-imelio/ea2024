@@ -15,7 +15,7 @@ public class Main {
 
         Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edgesFile, vertexFile);
 
-        NetworkOptimizationProblem problem = new NetworkOptimizationProblem(graph);
+        NetworkOptimizationProblem problem = new NetworkOptimizationProblem(graph, 0.5, 100000);
 
         BinarySolution solution = problem.createSolution();
 
