@@ -126,7 +126,7 @@ public class NetworkReliabilitySimulator {
    * @param g
    * @return
    */
-  static boolean isNetworkConnected(Graph<NetworkNode, NetworkEdge> g) {
+  public static boolean isNetworkConnected(Graph<NetworkNode, NetworkEdge> g) {
     Set<NetworkNode> servers = findServerNodes(g);
     Set<NetworkNode> clients = findClientNodes(g);
 
