@@ -26,11 +26,12 @@ public class Main {
             1000
         );
 
-        SinglePointCrossover cx = new SinglePointCrossover<>(0.9);
-        BitFlipMutation mutation = new BitFlipMutation<>(1.0 / problem.numberOfVariables());
+        SinglePointCrossover<BinarizedNetworkSolution> cx = new SinglePointCrossover<>(0.9);
+        BitFlipMutation<BinarizedNetworkSolution> mutation = new BitFlipMutation<>(1.0 / problem.numberOfVariables());
         BinaryTournamentSelection<BinarizedNetworkSolution> selection = new BinaryTournamentSelection<>();
 
-        NSGAII algo = new NSGAII(
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        NSGAII<BinarizedNetworkSolution> algo = new NSGAII(
             problem,
             2500,
             50,
