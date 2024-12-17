@@ -1,8 +1,13 @@
 package com.aegroupw;
 
 import org.jgrapht.Graph;
-import org.uma.jmetal.solution.binarysolution.BinarySolution;
+import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
+import org.uma.jmetal.operator.crossover.impl.SinglePointCrossover;
+import org.uma.jmetal.operator.mutation.impl.BitFlipMutation;
+import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.util.evaluator.impl.MultiThreadedSolutionListEvaluator;
 
+import com.aegroupw.evolutionary.BinarizedNetworkSolution;
 import com.aegroupw.evolutionary.NetworkOptimizationProblem;
 import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
@@ -15,12 +20,30 @@ public class Main {
 
         Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edgesFile, vertexFile);
 
-        NetworkOptimizationProblem problem = new NetworkOptimizationProblem(graph, 0.5, 100000);
+        NetworkOptimizationProblem problem = new NetworkOptimizationProblem(
+            graph,
+            0.8,
+            1000
+        );
 
-        BinarySolution solution = problem.createSolution();
+        SinglePointCrossover cx = new SinglePointCrossover<>(0.9);
+        BitFlipMutation mutation = new BitFlipMutation<>(1.0 / problem.numberOfVariables());
+        BinaryTournamentSelection<BinarizedNetworkSolution> selection = new BinaryTournamentSelection<>();
 
-        BinarySolution evaluatedSolution = problem.evaluate(solution);
+        NSGAII algo = new NSGAII(
+            problem,
+            2500,
+            50,
+            10,
+            10,
+            cx,
+            mutation,
+            selection,
+            new MultiThreadedSolutionListEvaluator<BinarizedNetworkSolution>(2)
+        );
 
-        System.out.println(evaluatedSolution);
+        algo.run();
+
+        System.out.println(algo.result());
     }
 }
