@@ -11,29 +11,40 @@ import com.aegroupw.evolutionary.BinarizedNetworkSolution;
 import com.aegroupw.evolutionary.NetworkOptimizationProblem;
 import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
-import com.aegroupw.utils.GraphParser;
+import com.aegroupw.graphgenerator.GraphGenerator;;
 
 public class Main {
     public static void main(String[] args) {
-        String vertexFile = "graphs/fully_connected/nodes.txt";
-        String edgesFile = "graphs/fully_connected/edges.txt";
+        // Generate a connected graph
+        int numServers = 2;
+        int numClients = 3;
+        int numComponents = 10;
+        double edgeProbability = 0.3;
 
-        Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edgesFile, vertexFile);
+        Graph<NetworkNode, NetworkEdge> graph = GraphGenerator.generateConnectedGraph(
+            numServers, numClients, numComponents, edgeProbability
+        );
+
+        // Print 
+        System.out.println("Generated Graph:");
+        System.out.println("Nodes: " + graph.vertexSet());
+        System.out.println("Edges: " + graph.edgeSet());
 
         NetworkOptimizationProblem problem = new NetworkOptimizationProblem(
             graph,
             0.8,
-            1000
+            100
         );
 
+        // Define the operators
         SinglePointCrossover cx = new SinglePointCrossover<>(0.9);
         BitFlipMutation mutation = new BitFlipMutation<>(1.0 / problem.numberOfVariables());
         BinaryTournamentSelection<BinarizedNetworkSolution> selection = new BinaryTournamentSelection<>();
 
         NSGAII algo = new NSGAII(
             problem,
-            2500,
-            50,
+                500,
+                    50,
             10,
             10,
             cx,
