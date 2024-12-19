@@ -33,7 +33,7 @@ public class Main {
         NetworkOptimizationProblem problem = new NetworkOptimizationProblem(
             graph,
             0.8,
-            100
+            1000
         );
 
         // Define the operators
@@ -43,8 +43,8 @@ public class Main {
 
         NSGAII algo = new NSGAII(
             problem,
-                500,
-                    50,
+                2500,
+                    500,
             10,
             10,
             cx,

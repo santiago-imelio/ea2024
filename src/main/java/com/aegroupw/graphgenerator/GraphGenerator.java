@@ -52,7 +52,10 @@ public class GraphGenerator {
 
                 // Add edges through random components to form a path
                 for (int j = 0; j < components.size(); j++) {
-                    NetworkNode next = components.get(random.nextInt(components.size()));
+                    NetworkNode next;
+                    do {
+                        next = components.get(random.nextInt(components.size()));
+                    } while (next.equals(current)); // Ensure no loops
 
                     if (!graph.containsEdge(current, next)) {
                         double reliability = 0.7 + random.nextDouble() * 0.3;
