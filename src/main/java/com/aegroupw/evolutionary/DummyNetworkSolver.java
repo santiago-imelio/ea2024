@@ -12,8 +12,8 @@ import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
 import com.aegroupw.network.NetworkNodeType;
 
-public class GreedyNetworkSolver {
-    public static Set<String> findGreedySolution(Graph<NetworkNode, NetworkEdge> network) {
+public class DummyNetworkSolver {
+    public static Set<String> findDummySolution(Graph<NetworkNode, NetworkEdge> network) {
         Set<String> solutionEdges = new HashSet<>();
 
         Set<NetworkNode> servers = findNodesByType(network, NetworkNodeType.SERVER);

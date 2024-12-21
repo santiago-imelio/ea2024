@@ -12,7 +12,7 @@ import com.aegroupw.evolutionary.NetworkOptimizationProblem;
 import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
 import com.aegroupw.utils.GraphParser;
-import com.aegroupw.evolutionary.GreedyNetworkSolver;
+import com.aegroupw.evolutionary.DummyNetworkSolver;
 
 import java.util.Set;
 
@@ -23,10 +23,10 @@ public class Main {
 
         Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edgesFile, vertexFile);
 
-        System.out.println("Running Greedy Solver...");
-        Set<String> greedySolution = GreedyNetworkSolver.findGreedySolution(graph);
-        System.out.println("Greedy Solution Edges:");
-        for (String edge : greedySolution) {
+        System.out.println("Running Dummy Solver...");
+        Set<String> dummySolution = DummyNetworkSolver.findDummySolution(graph);
+        System.out.println("Dummy Solution Edges:");
+        for (String edge : dummySolution) {
             System.out.println("Edge: " + edge);
         }
 
