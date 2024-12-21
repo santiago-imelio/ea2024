@@ -15,7 +15,7 @@ import com.aegroupw.network.NetworkNodeType;
 public class GraphGenerator {
 
     public static Graph<NetworkNode, NetworkEdge> generateConnectedGraph(int numServers, int numClients,
-            int numComponents, double edgeProbability) {
+            int numComponents, double edgeProbability, double minReliability) {
         Graph<NetworkNode, NetworkEdge> graph = new SimpleGraph<>(NetworkEdge.class);
         Random random = new Random();
 
@@ -58,8 +58,8 @@ public class GraphGenerator {
                     } while (next.equals(current)); // Ensure no loops
 
                     if (!graph.containsEdge(current, next)) {
-                        double reliability = 0.7 + random.nextDouble() * 0.3;
-                        double cost = reliability * 100;
+                        double reliability = generateReliability(random, minReliability);
+                        double cost = generateCost(reliability, random);
                         NetworkEdge edge = new NetworkEdge(graph.edgeSet().size(), cost, reliability);
                         graph.addEdge(current, next, edge);
                     }
@@ -72,8 +72,8 @@ public class GraphGenerator {
                 }
 
                 if (!graph.containsEdge(current, connectedServer)) {
-                    double reliability = 0.7 + random.nextDouble() * 0.3;
-                    double cost = reliability * 100;
+                    double reliability = generateReliability(random, minReliability);
+                    double cost = generateCost(reliability, random);
                     NetworkEdge edge = new NetworkEdge(graph.edgeSet().size(), cost, reliability);
                     graph.addEdge(current, connectedServer, edge);
                 }
@@ -89,8 +89,8 @@ public class GraphGenerator {
                     NetworkNode node2 = allNodes.get(j);
 
                     if (!graph.containsEdge(node1, node2)) {
-                        double reliability = 0.7 + random.nextDouble() * 0.3; // Reliability between 0.7 and 1.0
-                        double cost = reliability * 100; // Cost proportional to reliability
+                        double reliability = generateReliability(random, minReliability);
+                        double cost = generateCost(reliability, random);
                         NetworkEdge edge = new NetworkEdge(graph.edgeSet().size(), cost, reliability);
                         graph.addEdge(node1, node2, edge);
                     }
@@ -99,5 +99,16 @@ public class GraphGenerator {
         }
 
         return graph;
+    }
+
+    private static double generateReliability(Random random, double minReliability) {
+        double rndIncrement = random.nextDouble() * (1 - minReliability);
+        return minReliability + rndIncrement;
+    }
+
+    private static double generateCost(double reliability, Random random) {
+        double baseCost = reliability * 100;
+        double randomnessFactor = 1 + (random.nextDouble() - 0.5) * 0.2;
+        return baseCost * randomnessFactor;
     }
 }

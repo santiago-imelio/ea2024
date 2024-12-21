@@ -20,9 +20,10 @@ public class Main {
         int numClients = 3;
         int numComponents = 10;
         double edgeProbability = 0.3;
+        double minReliability = 0.7;
 
         Graph<NetworkNode, NetworkEdge> graph = GraphGenerator.generateConnectedGraph(
-            numServers, numClients, numComponents, edgeProbability
+                numServers, numClients, numComponents, edgeProbability, minReliability
         );
 
         // Print 
