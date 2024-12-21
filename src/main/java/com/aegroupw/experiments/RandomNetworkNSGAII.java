@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Random;
 
 import org.jgrapht.Graph;
-import org.jgrapht.graph.SimpleGraph;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
 import org.uma.jmetal.operator.crossover.impl.SinglePointCrossover;
 import org.uma.jmetal.operator.mutation.impl.BitFlipMutation;
@@ -38,7 +37,7 @@ public class RandomNetworkNSGAII {
             numServers, numClients, numComponents, edgeProbability, minReliability
     );
 
-    saveExperimentDOTGraph(experimentName, graph);
+    Utils.saveExperimentDOTGraph(experimentName, graph);
 
     NetworkOptimizationProblem problem = new NetworkOptimizationProblem(
         graph,
@@ -66,25 +65,5 @@ public class RandomNetworkNSGAII {
     algo.run();
 
     System.out.println(algo.result());
-  }
-
-  public static void saveExperimentDOTGraph(String experimentName, Graph<NetworkNode, NetworkEdge> graph) {
-    String outDir = Constants.experimentsDir + "/" + experimentName;
-
-    try {
-      File dir = new File(outDir);
-
-      if (!dir.exists()) {
-        dir.mkdirs();
-      }
-
-      String dotRepresentation = GraphParser.networkToDOT(graph);
-      BufferedWriter writer = new BufferedWriter(new FileWriter(outDir + "/graph.txt"));
-      writer.write(dotRepresentation);
-      writer.close();
-    } catch (IOException e) {
-      System.out.println("Problem generating dot file for graph");
-      System.out.println(e);
-    }
   }
 }

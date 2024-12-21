@@ -1,4 +1,4 @@
-package com.aegroupw.evolutionary;
+package com.aegroupw.heuristics;
 
 import java.util.HashSet;
 import java.util.List;
