@@ -103,7 +103,7 @@ public class NetworkOptimizationProblem extends AbstractBinaryProblem {
     return solution;
   }
 
-  private Graph<NetworkNode, NetworkEdge> buildSubNetworkFromSolution(BinarySolution solution) {
+  public Graph<NetworkNode, NetworkEdge> buildSubNetworkFromSolution(BinarySolution solution) {
     Graph<NetworkNode, NetworkEdge> g = this.network;
     Set<NetworkEdge> edgeSet = g.edgeSet();
 
