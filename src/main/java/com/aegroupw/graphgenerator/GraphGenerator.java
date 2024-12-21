@@ -3,6 +3,7 @@ package com.aegroupw.graphgenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.jgrapht.Graph;
 import org.jgrapht.alg.shortestpath.BFSShortestPath;
@@ -81,7 +82,9 @@ public class GraphGenerator {
         }
 
         // Add random edges between all nodes
-        List<NetworkNode> allNodes = new ArrayList<>(graph.vertexSet());
+        List<NetworkNode> allNodes = graph.vertexSet().stream()
+                .filter(node -> node.getType() == NetworkNodeType.COMPONENT)
+                .collect(Collectors.toList());
         for (int i = 0; i < allNodes.size(); i++) {
             for (int j = i + 1; j < allNodes.size(); j++) {
                 if (random.nextDouble() < edgeProbability) {
