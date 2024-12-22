@@ -8,16 +8,20 @@ import java.util.Set;
 
 import org.jgrapht.Graph;
 import org.jgrapht.graph.SimpleGraph;
-import org.uma.jmetal.problem.binaryproblem.impl.AbstractBinaryProblem;
+import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 
 import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
 import com.aegroupw.montecarlo.NetworkReliabilitySimulator;
 
-public class NetworkOptimizationProblem extends AbstractBinaryProblem {
+public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolution> {
   /** The network we want to optimize */
   private Graph<NetworkNode, NetworkEdge> network;
+
+  /** We use these for normalizing costs */
+  private double maxEdgeCost;
+  private double minEdgeCost;
 
   /** Problem Parameters */
 
@@ -27,17 +31,36 @@ public class NetworkOptimizationProblem extends AbstractBinaryProblem {
   /** Number of replications of Monte Carlo simulation to estimate network reliability */
   private int monteCarloReplications;
 
+  /** Weight to evaluate fitness of a solution to a single value */
+  private double w;
+
   public NetworkOptimizationProblem(
     Graph<NetworkNode, NetworkEdge> network,
     double edgeProbability,
-    int monteCarloReplications
+    int monteCarloReplications,
+    double weight
   ) {
     this.network = network;
     this.edgeProbability = edgeProbability;
     this.monteCarloReplications = monteCarloReplications;
+    this.maxEdgeCost = 0;
+    this.minEdgeCost = Integer.MAX_VALUE;
+    this.w = weight;
+
+    for (NetworkEdge e : network.edgeSet()) {
+      if (e.getCost() > maxEdgeCost) {
+        this.maxEdgeCost = e.getCost();
+      }
+    }
+
+    for (NetworkEdge e : network.edgeSet()) {
+      if (e.getCost() < minEdgeCost) {
+        this.minEdgeCost = e.getCost();
+      }
+    }
   }
 
-  @Override
+  // @Override
   public List<Integer> numberOfBitsPerVariable() {
     List<Integer> res = new ArrayList<>();
 
@@ -69,12 +92,12 @@ public class NetworkOptimizationProblem extends AbstractBinaryProblem {
   }
 
   @Override
-  public BinarySolution createSolution() {
+  public BinarizedNetworkSolution createSolution() {
     return new BinarizedNetworkSolution(numberOfBitsPerVariable(), numberOfObjectives(), this.edgeProbability);
   }
 
   @Override
-  public BinarySolution evaluate(BinarySolution solution) {
+  public BinarizedNetworkSolution evaluate(BinarizedNetworkSolution solution) {
     Graph<NetworkNode, NetworkEdge> subNetwork = this.buildSubNetworkFromSolution(solution);
 
     // if the solution is not connected, penalize
@@ -133,4 +156,18 @@ public class NetworkOptimizationProblem extends AbstractBinaryProblem {
     return gCopy;
   }
 
+  public double solutionWeightedFitness(BinarizedNetworkSolution solution) {
+    double w = this.w;
+    double maxCost = this.maxEdgeCost;
+    double minCost = this.minEdgeCost;
+    double totalCost = solution.objectives()[0];
+    double antiRlb = solution.objectives()[1];
+    double normalizedTotalCost = (totalCost - minCost) / (maxCost - minCost);
+
+    return w * normalizedTotalCost + (1 - w) * antiRlb;
+  }
+
+  public double getEdgeProbability() {
+    return edgeProbability;
+  }
 }

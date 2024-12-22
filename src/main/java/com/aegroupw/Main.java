@@ -15,6 +15,7 @@ import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import com.aegroupw.evolutionary.NetworkOptimizationProblem;
 import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
+import com.aegroupw.utils.GraphParser;
 import com.aegroupw.graphgenerator.GraphGenerator;
 
 import com.aegroupw.evolutionary.CustomGeneticAlgorithm;
@@ -22,16 +23,10 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Generate a connected graph
-        int numServers = 2;
-        int numClients = 3;
-        int numComponents = 10;
-        double edgeProbability = 0.3;
-        double minReliability = 0.7;
+        String edges = "graphs/fully_connected/edges.txt";
+        String nodes = "graphs/fully_connected/nodes.txt";
 
-        Graph<NetworkNode, NetworkEdge> graph = GraphGenerator.generateConnectedGraph(
-                numServers, numClients, numComponents, edgeProbability, minReliability
-        );
+        Graph<NetworkNode, NetworkEdge> graph = GraphParser.parseGraphFromFile(edges, nodes);
 
         // Print graph details
         System.out.println("Generated Graph:");
@@ -41,22 +36,23 @@ public class Main {
         // Define the optimization problem
         NetworkOptimizationProblem problem = new NetworkOptimizationProblem(
             graph,
-            0.8,
-            1000
+            0.7,
+            1000,
+            0.5
         );
 
 
         // Define the operators
-        double crossoverProbability = 0.5;
-        double mutationProbability = 0.5;
-        SelectionOperator<List<BinarySolution>, BinarySolution> selection = new BinaryTournamentSelection<>();
-        CrossoverOperator<BinarySolution> crossover = new SinglePointCrossover<BinarySolution>(
+        double crossoverProbability = 0.9;
+        double mutationProbability = 0.3;
+        SelectionOperator<List<BinarizedNetworkSolution>, BinarizedNetworkSolution> selection = new BinaryTournamentSelection<>();
+        CrossoverOperator<BinarizedNetworkSolution> crossover = new SinglePointCrossover<BinarizedNetworkSolution>(
                 crossoverProbability);
-        MutationOperator<BinarySolution> mutation = new BitFlipMutation<BinarySolution>(
+        MutationOperator<BinarizedNetworkSolution> mutation = new BitFlipMutation<BinarizedNetworkSolution>(
                 mutationProbability);
 
         // Define evaluators
-                MultiThreadedSolutionListEvaluator<BinarySolution> multiThreadedEvaluator = new MultiThreadedSolutionListEvaluator<>(
+                MultiThreadedSolutionListEvaluator<BinarizedNetworkSolution> multiThreadedEvaluator = new MultiThreadedSolutionListEvaluator<>(
                 2);
 
         // ** Run the CustomGeneticAlgorithm **
@@ -73,12 +69,17 @@ public class Main {
 
     // Execute the custom algorithm
     customAlgo.run();
-    List<BinarySolution> customResult = customAlgo.result();
+    List<BinarizedNetworkSolution> customResult = customAlgo.result();
 
     // Print results from CustomGeneticAlgorithm
     System.out.println("CustomGeneticAlgorithm Result:");
     customResult.forEach(solution -> {
-        System.out.println("Solution Objectives: " + solution.objectives()[0]);
+        System.out.print(solution);
+        System.out.println("total cost: " + solution.objectives()[0]);
+        System.out.println("rlb: " + solution.objectives()[1]);
+
+        problem.buildSubNetworkFromSolution(solution);
+        System.out.println(GraphParser.networkToDOT(graph));
     });
 
     // NSGAII algo = new NSGAII(
