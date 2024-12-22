@@ -65,7 +65,7 @@ public class NetworkReliabilitySimulator {
     return results;
   }
 
-  static Set<NetworkNode> findServerNodes(Graph<NetworkNode, NetworkEdge> g) {
+  public static Set<NetworkNode> findServerNodes(Graph<NetworkNode, NetworkEdge> g) {
     Set<NetworkNode> servers = new HashSet<>();
     Set<NetworkNode> vertexSet = g.vertexSet();
 
@@ -78,7 +78,7 @@ public class NetworkReliabilitySimulator {
     return servers;
   }
 
-  static Set<NetworkNode> findClientNodes(Graph<NetworkNode, NetworkEdge> g) {
+  public static Set<NetworkNode> findClientNodes(Graph<NetworkNode, NetworkEdge> g) {
     Set<NetworkNode> clients = new HashSet<>();
     Set<NetworkNode> vertexSet = g.vertexSet();
 
