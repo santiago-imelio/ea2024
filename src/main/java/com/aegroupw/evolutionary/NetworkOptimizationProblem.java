@@ -22,6 +22,7 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
   /** We use these for normalizing costs */
   private double maxEdgeCost;
   private double minEdgeCost;
+  private double graphCost;
 
   /** Problem Parameters */
 
@@ -57,6 +58,10 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
       if (e.getCost() < minEdgeCost) {
         this.minEdgeCost = e.getCost();
       }
+    }
+
+    for (NetworkEdge e : network.edgeSet()) {
+      this.graphCost += e.getCost();
     }
   }
 
@@ -157,14 +162,11 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
   }
 
   public double solutionWeightedFitness(BinarizedNetworkSolution solution) {
-    double w = this.w;
-    double maxCost = this.maxEdgeCost;
-    double minCost = this.minEdgeCost;
     double totalCost = solution.objectives()[0];
     double antiRlb = solution.objectives()[1];
-    double normalizedTotalCost = (totalCost - minCost) / (maxCost - minCost);
+    double normalizedTotalCost = totalCost / graphCost;
 
-    return w * normalizedTotalCost + (1 - w) * antiRlb;
+    return w * normalizedTotalCost - (1 - w) * Math.log(antiRlb);
   }
 
   public double getEdgeProbability() {

@@ -38,7 +38,7 @@ public class Main {
             graph,
             0.7,
             1000,
-            0.5
+            0.2
         );
 
 
