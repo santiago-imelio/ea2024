@@ -12,16 +12,43 @@ import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
 
 public class ModifiedPrimSolver {
-    public static Graph<NetworkNode,NetworkEdge> findMST(
-            Graph<NetworkNode, NetworkEdge> graph,
+    private Graph<NetworkNode, NetworkEdge> graph;
+    private double maxEdgeCost;
+    private double minEdgeCost;
+    private double w;
+
+    public ModifiedPrimSolver(Graph<NetworkNode, NetworkEdge> network, double w) {
+        this.graph = network;
+        this.maxEdgeCost = 0;
+        this.minEdgeCost = Integer.MAX_VALUE;
+        this.w = w;
+
+        for (NetworkEdge e : network.edgeSet()) {
+            if (e.getCost() > maxEdgeCost) {
+              this.maxEdgeCost = e.getCost();
+            }
+          }
+
+          for (NetworkEdge e : network.edgeSet()) {
+            if (e.getCost() < minEdgeCost) {
+              this.minEdgeCost = e.getCost();
+            }
+          }
+    }
+
+    public double greedyObjective(NetworkEdge e) {
+        double val = w * (e.getCost() / maxEdgeCost) - (1 - w) * Math.log((1 - e.getProbability()));
+        System.out.println(val);
+        return val;
+    }
+
+    public Graph<NetworkNode,NetworkEdge> findMST(
             Set<NetworkNode> servers,
-            Set<NetworkNode> clients,
-            double alpha,
-            double beta) {
+            Set<NetworkNode> clients) {
 
         // Create a priority queue to select the next edge
         PriorityQueue<NetworkEdge> pq = new PriorityQueue<>(
-                Comparator.comparingDouble(e -> e.score()));
+                Comparator.comparingDouble(e -> greedyObjective(e)));
 
         Set<NetworkNode> inMST = new HashSet<>();
         Set<NetworkEdge> selectedEdges = new HashSet<>();

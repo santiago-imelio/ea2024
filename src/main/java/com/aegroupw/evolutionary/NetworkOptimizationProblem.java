@@ -20,8 +20,6 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
   private Graph<NetworkNode, NetworkEdge> network;
 
   /** We use these for normalizing costs */
-  private double maxEdgeCost;
-  private double minEdgeCost;
   private double graphCost;
 
   /** Problem Parameters */
@@ -44,21 +42,7 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
     this.network = network;
     this.edgeProbability = edgeProbability;
     this.monteCarloReplications = monteCarloReplications;
-    this.maxEdgeCost = 0;
-    this.minEdgeCost = Integer.MAX_VALUE;
     this.w = weight;
-
-    for (NetworkEdge e : network.edgeSet()) {
-      if (e.getCost() > maxEdgeCost) {
-        this.maxEdgeCost = e.getCost();
-      }
-    }
-
-    for (NetworkEdge e : network.edgeSet()) {
-      if (e.getCost() < minEdgeCost) {
-        this.minEdgeCost = e.getCost();
-      }
-    }
 
     for (NetworkEdge e : network.edgeSet()) {
       this.graphCost += e.getCost();

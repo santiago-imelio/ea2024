@@ -40,8 +40,4 @@ public class NetworkEdge extends DefaultWeightedEdge {
                 ", probability=" + probability +
                 '}';
     }
-
-    public double score() {
-        return (getCost() / 100 + getProbability()) / 2;
-    }
 }

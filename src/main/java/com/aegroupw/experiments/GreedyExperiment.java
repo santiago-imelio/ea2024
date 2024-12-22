@@ -12,7 +12,7 @@ import com.aegroupw.network.NetworkNode;
 import com.aegroupw.utils.GraphParser;
 
 public class GreedyExperiment {
-  public static void run(String experimentName, double alpha, double beta) {
+  public static void run(String experimentName) {
     String edges = "graphs/fully_connected/edges.txt";
     String nodes = "graphs/fully_connected/nodes.txt";
 
@@ -21,14 +21,16 @@ public class GreedyExperiment {
     Set<NetworkNode> servers = NetworkReliabilitySimulator.findServerNodes(g);
     Set<NetworkNode> clients = NetworkReliabilitySimulator.findClientNodes(g);
 
-    Graph<NetworkNode, NetworkEdge> mst = ModifiedPrimSolver.findMST(g, servers, clients, alpha, beta);
+    ModifiedPrimSolver prim = new ModifiedPrimSolver(g, 0);
+
+    Graph<NetworkNode, NetworkEdge> mst = prim.findMST(servers, clients);
 
     Utils.saveExperimentDOTGraph(experimentName, mst);
 
     Map<String, Double> result = NetworkReliabilitySimulator.estimateReliability(mst, 10000);
 
     double totalCost = 0;
-    for (NetworkEdge e : g.edgeSet()) {
+    for (NetworkEdge e : mst.edgeSet()) {
       totalCost += e.getCost();
     }
 
