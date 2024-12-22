@@ -38,7 +38,8 @@ public class FullyConnectedNSGAII {
     NetworkOptimizationProblem problem = new NetworkOptimizationProblem(
         g,
         0.6,
-        1000
+        1000,
+        0.0
     );
 
     // Define the operators

@@ -42,7 +42,8 @@ public class RandomNetworkNSGAII {
     NetworkOptimizationProblem problem = new NetworkOptimizationProblem(
         graph,
         0.8,
-        1000
+        1000,
+        0.0
     );
 
     // Define the operators

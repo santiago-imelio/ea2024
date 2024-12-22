@@ -24,9 +24,9 @@ public class NetworkReliabilitySimulator {
   public static Map<String, Double> estimateReliability(Graph<NetworkNode, NetworkEdge> network, int replications) {
     long startTime = System.nanoTime();
 
-    System.out.println(
-      "Starting Monte Carlo simulation " + "(" + replications + " replications)"
-    );
+    // System.out.println(
+    //   "Starting Monte Carlo simulation " + "(" + replications + " replications)"
+    // );
 
     Random rnd = new Random();
 
@@ -49,7 +49,7 @@ public class NetworkReliabilitySimulator {
     long endTime = System.nanoTime();
     long duration = (endTime - startTime) / 1000000;
 
-    System.out.println("Execution time for simulation: " + duration + " ms");
+    //System.out.println("Execution time for simulation: " + duration + " ms");
 
     Double q = (double)sum / replications;
     variance = (variance / replications - q * q)/(replications - 1);
