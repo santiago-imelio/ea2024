@@ -60,7 +60,7 @@ public class RandomNetworkNSGAII {
         cx,
         mutation,
         selection,
-        new MultiThreadedSolutionListEvaluator<BinarizedNetworkSolution>(2)
+        new MultiThreadedSolutionListEvaluator<BinarizedNetworkSolution>(0)
     );
 
     algo.run();
