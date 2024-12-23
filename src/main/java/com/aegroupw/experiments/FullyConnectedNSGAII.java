@@ -18,14 +18,14 @@ import org.uma.jmetal.solution.binarysolution.impl.DefaultBinarySolution;
 import org.uma.jmetal.util.evaluator.impl.MultiThreadedSolutionListEvaluator;
 
 import com.aegroupw.evolutionary.BinarizedNetworkSolution;
-import com.aegroupw.evolutionary.NetworkOptimizationProblem;
+import com.aegroupw.evolutionary.NetworkOptimizationProblemNSGAII;
 import com.aegroupw.network.NetworkEdge;
 import com.aegroupw.network.NetworkNode;
 import com.aegroupw.utils.GraphParser;
 
 public class FullyConnectedNSGAII {
 
-  public static List<DefaultBinarySolution> run(String experimentName) {
+  public static List<Map<String, Object>> run(String experimentName) {
     if (experimentName == null || experimentName.trim().isEmpty()) {
         experimentName = "experiment" + new Random().nextInt(1000);
     }
@@ -35,34 +35,31 @@ public class FullyConnectedNSGAII {
 
     // Parametrizar el problema
     Map<String, List<Double>> problemParams = new HashMap<>();
-    problemParams.put("networkDensity", List.of(0.6, 0.7, 0.8)); // Densidad de la red
-    problemParams.put("nodeCount", List.of(1000.0, 1500.0, 2000.0)); // Número de nodos
-    problemParams.put("penaltyRate", List.of(0.0, 0.1, 0.2)); // Tasa de penalización
+    problemParams.put("networkDensity", List.of(0.6, 0.7, 0.8));
+    problemParams.put("monteCarloReplications", List.of(5000.0));
 
     // Parametrizar los operadores y otros parámetros como antes
     Map<String, List<Double>> params = new HashMap<>();
-    params.put("crossoverProbability", List.of(0.7, 0.8, 0.9));
-    params.put("mutationProbability", List.of(0.1, 0.2, 0.3));
-    params.put("maxEvaluations", List.of(2000.0, 3000.0));
-    params.put("populationSize", List.of(500.0, 1000.0));
+    params.put("crossoverProbability", List.of(0.5, 0.7, 0.9));
+    params.put("mutationProbability", List.of(0.2, 0.5));
+    params.put("maxEvaluations", List.of(500.0, 1000.0, 2000.0));
+    params.put("populationSize", List.of(100.0, 200.0));
 
-    List<DefaultBinarySolution> allResults = new ArrayList<>();
+    List<Map<String, Object>> allResults = new ArrayList<>();
 
     // Generar combinaciones de parámetros del problema
     for (Map<String, Double> problemCombination : generateCombinations(problemParams)) {
         double networkDensity = problemCombination.get("networkDensity");
-        double nodeCount = problemCombination.get("nodeCount");
-        double penaltyRate = problemCombination.get("penaltyRate");
+        double monteCarloReplications = problemCombination.get("monteCarloReplications");
 
         // Cargar el grafo con diferentes configuraciones
         Graph<NetworkNode, NetworkEdge> g = GraphParser.parseGraphFromFile(edges, nodes);
 
         // Crear el problema con los parámetros de la combinación actual
-        NetworkOptimizationProblem problem = new NetworkOptimizationProblem(
+        NetworkOptimizationProblemNSGAII problem = new NetworkOptimizationProblemNSGAII(
                 g,
-                networkDensity,    // Nueva configuración de densidad
-                (int) nodeCount,   // Número de nodos
-                penaltyRate        // Tasa de penalización
+            networkDensity,
+            (int) monteCarloReplications
         );
 
         // Generar combinaciones de los parámetros del algoritmo
@@ -78,10 +75,10 @@ public class FullyConnectedNSGAII {
                     new UniformCrossover<>(crossoverProbability)
             );
 
-            for (CrossoverOperator<BinarizedNetworkSolution> crossover : crossovers) {
-                MutationOperator<BinarizedNetworkSolution> mutation = new BitFlipMutation<>(mutationProbability);
+            for (CrossoverOperator crossover : crossovers) {
+              MutationOperator mutation = new BitFlipMutation<>(mutationProbability);
 
-                NSGAII<BinarizedNetworkSolution> algo = new NSGAII<>(
+              NSGAII algo = new NSGAII<>(
                         problem,
                         maxEvaluations,
                         populationSize,
@@ -94,15 +91,21 @@ public class FullyConnectedNSGAII {
                 );
 
                 algo.run();
-                allResults.addAll(algo.result());
+
+                // Añadir resultados junto con parámetros usados
+                Map<String, Object> resultData = new HashMap<>();
+                resultData.put("problemParams", problemCombination);
+                resultData.put("algorithmParams", combination);
+                resultData.put("crossoverType", crossover.getClass().getSimpleName());
+                resultData.put("solutions", algo.result());
+
+                allResults.add(resultData);
             }
         }
     }
 
     return allResults;
   }
-
-
 
   private static List<Map<String, Double>> generateCombinations(Map<String, List<Double>> params) {
       List<Map<String, Double>> combinations = new ArrayList<>();

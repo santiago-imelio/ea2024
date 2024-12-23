@@ -20,7 +20,7 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
   private Graph<NetworkNode, NetworkEdge> network;
 
   /** We use these for normalizing costs */
-  private double graphCost;
+  private double totalCost;
 
   /** Problem Parameters */
 
@@ -45,7 +45,7 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
     this.w = weight;
 
     for (NetworkEdge e : network.edgeSet()) {
-      this.graphCost += e.getCost();
+      this.totalCost += e.getCost();
     }
   }
 
@@ -146,9 +146,10 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
   }
 
   public double solutionWeightedFitness(BinarizedNetworkSolution solution) {
+    double costGraph = this.totalCost;
     double totalCost = solution.objectives()[0];
     double antiRlb = solution.objectives()[1];
-    double normalizedTotalCost = totalCost / graphCost;
+    double normalizedTotalCost = totalCost / costGraph;
 
     return w * normalizedTotalCost - (1 - w) * Math.log(antiRlb);
   }

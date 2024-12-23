@@ -29,8 +29,8 @@ public class GreedyExperiment {
     Set<NetworkNode> clients = NetworkReliabilitySimulator.findClientNodes(g);
 
     // Parámetros a variar
-    List<Double> weights = List.of(0.1, 0.3, 0.5, 0.7);
-    List<Integer> replications = List.of(1000, 5000, 10000);
+    List<Double> weights = List.of(0.1, 0.5, 0.9);
+    List<Integer> replications = List.of(5000);
 
     // Generar todas las combinaciones posibles
     List<Map<String, Object>> combinations = generateCombinations(weights, replications);
@@ -56,8 +56,7 @@ public class GreedyExperiment {
       }
 
       Map<String, Object> experimentResult = new HashMap<>();
-      experimentResult.put("w", w);
-      experimentResult.put("replications", replicationCount);
+      experimentResult.put("parameters", combination);
       experimentResult.put("totalCost", totalCost);
       experimentResult.put("rlb", result.get("rlb"));
 

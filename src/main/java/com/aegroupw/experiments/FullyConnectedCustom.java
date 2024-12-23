@@ -25,7 +25,7 @@ import java.util.Random;
 
 public class FullyConnectedCustom {
 
-    public static List<DefaultBinarySolution> run(String experimentName) {
+    public static Map<Map<String, Double>, List<DefaultBinarySolution>> run(String experimentName) {
         if (experimentName == null || experimentName.trim().isEmpty()) {
             experimentName = "experiment" + new Random().nextInt(1000);
         }
@@ -36,17 +36,18 @@ public class FullyConnectedCustom {
         // Parametrizar el problema
         Map<String, List<Double>> problemParams = new HashMap<>();
         problemParams.put("edgeProbability", List.of(0.6, 0.7, 0.8));
-        problemParams.put("monteCarloReplications", List.of(50.0, 100.0, 150.0));
-        problemParams.put("weight", List.of(0.1, 0.3, 0.5, 0.7));
+        problemParams.put("monteCarloReplications", List.of(5000.0));
+        problemParams.put("weight", List.of(0.1, 0.5, 0.9));
 
         // Parametrizar los operadores y otros parámetros como antes
         Map<String, List<Double>> params = new HashMap<>();
         params.put("crossoverProbability", List.of(0.7, 0.8, 0.9));
         params.put("mutationProbability", List.of(0.1, 0.2, 0.3));
-        params.put("maxGenerations", List.of(1000.0, 1500.0, 2000.0));
-        params.put("populationSize", List.of(50.0, 150.0));
+        params.put("maxGenerations", List.of(500.0, 1000.0, 2000.0));
+        params.put("populationSize", List.of(100.0, 200.0));
 
-        List<DefaultBinarySolution> allResults = new ArrayList<>();
+        // Almacenar resultados asociados con los parámetros
+        Map<Map<String, Double>, List<DefaultBinarySolution>> resultsWithParams = new HashMap<>();
 
         // Generar combinaciones de parámetros del problema
         for (Map<String, Double> problemCombination : generateCombinations(problemParams)) {
@@ -90,12 +91,18 @@ public class FullyConnectedCustom {
                             populationSize);
 
                     customAlgo.run();
-                    allResults.addAll(customAlgo.result());
+
+                    // Crear una combinación completa de parámetros
+                    Map<String, Double> fullCombination = new HashMap<>(problemCombination);
+                    fullCombination.putAll(combination);
+
+                    // Guardar resultados
+                    resultsWithParams.put(fullCombination, new ArrayList<>(customAlgo.result()));
                 }
             }
         }
 
-        return allResults;
+        return resultsWithParams;
     }
 
     private static List<Map<String, Double>> generateCombinations(Map<String, List<Double>> params) {
@@ -124,5 +131,4 @@ public class FullyConnectedCustom {
         }
         return combinations;
     }
-
 }
