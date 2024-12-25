@@ -35,15 +35,15 @@ public class FullyConnectedNSGAII {
 
     // Parametrizar el problema
     Map<String, List<Double>> problemParams = new HashMap<>();
-    problemParams.put("networkDensity", List.of(0.6, 0.7, 0.8));
+    problemParams.put("networkDensity", List.of(0.6));
     problemParams.put("monteCarloReplications", List.of(5000.0));
 
     // Parametrizar los operadores y otros parámetros como antes
     Map<String, List<Double>> params = new HashMap<>();
-    params.put("crossoverProbability", List.of(0.5, 0.7, 0.9));
-    params.put("mutationProbability", List.of(0.2, 0.5));
-    params.put("maxEvaluations", List.of(500.0, 1000.0, 2000.0));
-    params.put("populationSize", List.of(100.0, 200.0));
+    params.put("crossoverProbability", List.of(0.9));
+    params.put("mutationProbability", List.of(0.1));
+    params.put("maxEvaluations", List.of(1000.0));
+    params.put("populationSize", List.of(200.0));
 
     List<Map<String, Object>> allResults = new ArrayList<>();
 
@@ -98,6 +98,12 @@ public class FullyConnectedNSGAII {
                 resultData.put("algorithmParams", combination);
                 resultData.put("crossoverType", crossover.getClass().getSimpleName());
                 resultData.put("solutions", algo.result());
+
+                for (int i = 0; i < algo.result().size(); i++) {
+                    DefaultBinarySolution s = (DefaultBinarySolution) algo.result().get(i);
+                    Graph<NetworkNode, NetworkEdge> sol = problem.buildSubNetworkFromSolution(s);
+                    Utils.saveExperimentDOTGraph(experimentName + "solution" + i + "_" + s.objectives()[0] + "_" + s.objectives()[1], sol);
+                }
 
                 allResults.add(resultData);
             }
