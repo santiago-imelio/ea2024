@@ -151,7 +151,7 @@ public class NetworkOptimizationProblem implements Problem<BinarizedNetworkSolut
     double antiRlb = solution.objectives()[1];
     double normalizedTotalCost = totalCost / costGraph;
 
-    return w * normalizedTotalCost - (1 - w) * Math.log(antiRlb);
+    return w * normalizedTotalCost + (1 - w) * Math.log(2 + antiRlb);
   }
 
   public double getEdgeProbability() {

@@ -37,7 +37,7 @@ public class ModifiedPrimSolver {
     }
 
     public double greedyObjective(NetworkEdge e) {
-        double val = w * (e.getCost() / maxEdgeCost) - (1 - w) * Math.log((1 - e.getProbability()));
+        double val = w * (e.getCost() / maxEdgeCost) + (1 - w) * Math.log(3 - e.getProbability());
         return val;
     }
 
